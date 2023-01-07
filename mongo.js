@@ -1,24 +1,17 @@
 const mongoose = require('mongoose')
+const { Schema, model } = mongoose
 
-const { MONGO_DB_URI, MONGO_DB_URI_TEST, NODE_ENV } = process.env
+const uri =
+  'mongodb+srv://frnbrz:<0Z4UEDQBy6KcKO5P>@cluster0.xygy5ef.mongodb.net/notes?retryWrites=true&w=majority'
 
-const connectionString = NODE_ENV === 'test'
-  ? MONGO_DB_URI_TEST
-  : MONGO_DB_URI
-
-mongoose.connect(connectionString, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-  useCreateIndex: true
+mongoose.connect(uri).then(() => {
+  console.log('Connected to MongoDB')
 })
-  .then(() => {
-    console.log('Database connected')
-  }).catch(err => {
-    console.error(err)
-  })
 
-process.on('uncaughtException', error => {
-  console.error(error)
-  mongoose.disconnect()
+const noteSchema = new Schema({
+  content: String,
+  date: Date,
+  important: Boolean
 })
+
+const Note = model('Note', noteSchema)
