@@ -1,35 +1,37 @@
 const express = require('express')
 const app = express()
+const cors = require('cors')
 
+app.use(cors())
 app.use(express.json())
-
-app.use((request, response, next) => {
-  response.header('Access-Control-Allow-Origin', '*')
-  response.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
-  response.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-  next()
-})
 
 let notes = [
   {
     id: 1,
-    content: 'HTML is easy',
+    content: 'Me tengo que suscribir a @midudev en YouTube',
     date: '2019-05-30T17:30:31.098Z',
     important: true
   },
   {
     id: 2,
-    content: 'Browser can execute only Javascript',
+    content: 'Tengo que estudiar las clases del FullStack Bootcamp',
     date: '2019-05-30T18:39:34.091Z',
     important: false
   },
   {
     id: 3,
-    content: 'GET and POST are the most important methods of HTTP protocol',
+    content: 'Repasar los retos de JS de midudev',
     date: '2019-05-30T19:20:14.298Z',
     important: true
   }
 ]
+
+const generateId = () => {
+  const notesIds = notes.map(n => n.id)
+  const maxId = notesIds.length ? Math.max(...notesIds) : 0
+  const newId = maxId + 1
+  return newId
+}
 
 app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
@@ -41,10 +43,10 @@ app.get('/api/notes', (request, response) => {
 
 app.get('/api/notes/:id', (request, response) => {
   const id = Number(request.params.id)
-  const note = notes.find((note) => note.id === id)
+  const note = notes.find(note => note.id === id)
 
   if (note) {
-    response.json(note)
+    return response.json(note)
   } else {
     response.status(404).end()
   }
@@ -52,40 +54,33 @@ app.get('/api/notes/:id', (request, response) => {
 
 app.delete('/api/notes/:id', (request, response) => {
   const id = Number(request.params.id)
-  notes = notes.filter((note) => note.id !== id)
+  notes = notes.filter(note => note.id !== id)
+
   response.status(204).end()
 })
 
 app.post('/api/notes', (request, response) => {
   const note = request.body
 
-  if (!note || !note.content) {
+  if (!note.content) {
     return response.status(400).json({
-      error: 'note.content is missing'
+      error: 'required "content" field is missing'
     })
   }
 
-  const ids = notes.map((note) => note.id)
-  const maxId = Math.max(...ids)
-
   const newNote = {
-    id: maxId + 1,
+    id: generateId(),
     content: note.content,
-    important: typeof note.important !== 'undefined' ? note.important : false,
-    date: new Date().toISOString()
+    date: new Date(),
+    import: note.important || false
   }
+
   notes = notes.concat(newNote)
 
-  response.status(201).json(newNote)
+  response.json(note)
 })
 
-app.use((request, response) => {
-  response.status(404).json({
-    error: 'Not found'
-  })
-})
-
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
