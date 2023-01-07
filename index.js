@@ -1,30 +1,14 @@
+require('dotenv').config()
+require('./mongo')
 const express = require('express')
 const app = express()
 const cors = require('cors')
+const Note = require('./models/Notes')
 
 app.use(cors())
 app.use(express.json())
 
-let notes = [
-  {
-    id: 1,
-    content: 'Me tengo que suscribir a @midudev en YouTube',
-    date: '2019-05-30T17:30:31.098Z',
-    important: true
-  },
-  {
-    id: 2,
-    content: 'Tengo que estudiar las clases del FullStack Bootcamp',
-    date: '2019-05-30T18:39:34.091Z',
-    important: false
-  },
-  {
-    id: 3,
-    content: 'Repasar los retos de JS de midudev',
-    date: '2019-05-30T19:20:14.298Z',
-    important: true
-  }
-]
+let notes = []
 
 const generateId = () => {
   const notesIds = notes.map(n => n.id)
@@ -38,7 +22,9 @@ app.get('/', (request, response) => {
 })
 
 app.get('/api/notes', (request, response) => {
-  response.json(notes)
+  Note.find({}).then(notes => {
+    response.json(notes)
+  })
 })
 
 app.get('/api/notes/:id', (request, response) => {

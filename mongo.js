@@ -1,17 +1,29 @@
 const mongoose = require('mongoose')
-const { Schema, model } = mongoose
 
-const uri =
-  'mongodb+srv://frnbrz:<0Z4UEDQBy6KcKO5P>@cluster0.xygy5ef.mongodb.net/notes?retryWrites=true&w=majority'
+mongoose.set('strictQuery', true)
 
-mongoose.connect(uri).then(() => {
+const { MONGODB_URI } = process.env
+
+mongoose.connect(MONGODB_URI).then(() => {
   console.log('Connected to MongoDB')
 })
 
-const noteSchema = new Schema({
-  content: String,
-  date: Date,
-  important: Boolean
-})
+// Note.find({}).then(result => {
+//   result.forEach(note => {
+//     console.log(note)
+//   })
+//   mongoose.connection.close()
+// })
 
-const Note = model('Note', noteSchema)
+// const note = new Note({
+//   content: 'HTML is easy',
+//   date: new Date(),
+//   important: true
+// })
+
+// note.save().then(result => {
+//   console.log('note saved!')
+//   mongoose.connection.close()
+// }).catch(err => {
+//   console.log(err)
+// })
